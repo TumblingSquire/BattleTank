@@ -52,46 +52,53 @@ void ATankPlayerController::AimTowardCrosshair()
 	// Get Linetrace where it hit the world through the crosshair
 	if (GetSightRayHitLocation(HitLocation))
 	{
-
 		UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s"), *HitLocation.ToString());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s"), *FVector(0,0,0).ToString());
 	}
 }
 
 bool ATankPlayerController::GetSightRayHitLocation(FVector & HitLocation) const
 {
 	HitLocation = FVector(1.0);
-	return true;
+	// find the crosshair position in pixel coordinates
+	int32 ViewPortSizeX, ViewPortSizeY;
+	GetViewportSize(ViewPortSizeX, ViewPortSizeY);
+
+	// convert screen 2D location to the 3D world location
+	auto ScreenLocation = FVector2D(ViewPortSizeX * CrossHairXLocation, ViewPortSizeY * CrossHairYLocation);
+	FVector CameraWorldDirection, CameraWorldLocation;
+	DeprojectScreenPositionToWorld(
+		ScreenLocation.X, 
+		ScreenLocation.Y, 
+		CameraWorldLocation, 
+		CameraWorldDirection);
+
+	// Line-trace from this screen location, straight forward along the look direction, max reach.
+	return (GetLookVectorHitLocation(HitLocation, CameraWorldLocation, CameraWorldDirection));
 }
 
-const FHitResult ATankPlayerController::GetWorldPointCollideWithCrosshair() 
+bool ATankPlayerController::GetLookVectorHitLocation(FVector & HitLocation, 
+	FVector CameraWorldLocation, 
+	FVector CameraWorldDirection) const
 {
 	FHitResult HitResult;
-
-	/// Setup query parameters
-	FCollisionQueryParams TraceParameters(FName(TEXT("")), false, GetOwner());
-
+	
 	/// Ray-casting (Line-tracing)
-	GetWorld()->LineTraceSingleByObjectType(
+	if (GetWorld()->LineTraceSingleByChannel(
 		OUT HitResult,
-		GetLineTraceStart(),
-		GetLineTraceEnd(),
-		FCollisionObjectQueryParams(ECollisionChannel::ECC_WorldStatic),
-		TraceParameters
-	);
-	return HitResult;
-}
-FVector ATankPlayerController::GetLineTraceEnd()
-{
-	// Get player's view point this tick
-	GetPlayerViewPoint(
-		OUT PlayerViewPointLocation,
-		OUT PlayerViewPointRotation
-	);
-
-	return PlayerViewPointLocation + PlayerViewPointRotation.Vector() * Reach;
-}
-
-FVector ATankPlayerController::GetLineTraceStart()
-{
-	return PlayerViewPointLocation;
+		CameraWorldLocation,
+		CameraWorldLocation + CameraWorldDirection*LineTraceRange,
+		ECollisionChannel::ECC_Visibility))
+	{
+		HitLocation = HitResult.Location;
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+	
 }
