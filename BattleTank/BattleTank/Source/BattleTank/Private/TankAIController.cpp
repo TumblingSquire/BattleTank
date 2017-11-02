@@ -52,3 +52,14 @@ ATank * ATankAIController::GetPlayerTank()
 		return PlayerPawn;
 	}
 }
+
+
+void ATankAIController::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+	if (GetPlayerTank())
+	{
+		auto PlayerTankLocation = GetPlayerTank()->GetActorLocation();
+		GetControlledTank()->AimAt(PlayerTankLocation);
+	}
+}
