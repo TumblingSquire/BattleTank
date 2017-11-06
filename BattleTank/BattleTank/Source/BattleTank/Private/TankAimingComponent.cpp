@@ -1,8 +1,10 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Public/TankAimingComponent.h" 
+#include "Public/TankTurret.h"
 #include "Public/TankBarrel.h"
 #include "GameFramework/Actor.h"
+#include "Engine/World.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
 #include "Runtime/Engine/Classes/Kismet/GameplayStatics.h"
 
@@ -39,22 +41,31 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 {
 	if (!Barrel) return;
+	if (!Turret) return;
 
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("Projecttile"));
+	bool bFoundAimSolution = UGameplayStatics::SuggestProjectileVelocity(
+		this,
+		OutLaunchVelocity,
+		StartLocation,
+		HitLocation,
+		LaunchSpeed,
+		false,
+		0,
+		0,
+		ESuggestProjVelocityTraceOption::DoNotTrace
+	);
 
-	if (UGameplayStatics::SuggestProjectileVelocity(
-			this,
-			OutLaunchVelocity,
-			StartLocation,
-			HitLocation,
-			LaunchSpeed,
-			ESuggestProjVelocityTraceOption::DoNotTrace
-			)
-		)
+	if (bFoundAimSolution)
 	{
 		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
 		MoveBarrel(AimDirection);
+	}
+	else
+	{
+		auto Time = GetWorld()->GetTimeSeconds();
+		UE_LOG(LogTemp, Warning, TEXT("%f: Aim solution not found."), Time);
 	}
 }
 
@@ -64,14 +75,28 @@ void UTankAimingComponent::SetBarrelReference(UTankBarrel * BarrelToSet)
 	Barrel = BarrelToSet;
 }
 
+void UTankAimingComponent::SetTurretReference(UTankTurret * TurretToSet)
+{
+	Turret = TurretToSet;
+}
+
 void UTankAimingComponent::MoveBarrel(FVector AimDirection)
 {
-	
 	// find the amount of rotation that the barrel need to move
 	// from current vector to aim direction
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = AimAsRotator - BarrelRotator;
-	Barrel->Elevate(5);
+	Barrel->Elevate(DeltaRotator.Pitch); 
+	if (FMath::Abs(DeltaRotator.Yaw) < 180)
+	{
+		Turret->Rotate(DeltaRotator.Yaw);
+	}
+	else // Avoid going the long-way round
+	{
+		Turret->Rotate(-DeltaRotator.Yaw);
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("Rotating Turret by: %f"), DeltaRotator.Yaw);
+
 }
 
