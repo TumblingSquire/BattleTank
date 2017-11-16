@@ -19,16 +19,19 @@ ATank::ATank()
 
 void ATank::Fire()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Tank Fires."));
+	bool isReloaded = (FPlatformTime::Seconds() - LastFireTime) > ReloadTime;
+	if (Barrel && isReloaded)
+		//Spawn a projectile at the barrel' location
+	{
+		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
+			ProjectileBluePrint,
+			Barrel->GetSocketLocation(FName("Projecttile")),
+			Barrel->GetSocketRotation(FName("Projecttile"))
+			);
 
-	if (!Barrel) return;
-	//Spawn a projectile at the barrel' location
-
-	GetWorld()->SpawnActor<AProjectile>(
-		ProjectileBluePrint,
-		Barrel->GetSocketLocation(FName("Projecttile")),
-		Barrel->GetSocketRotation(FName("Projecttile"))
-		);
+		Projectile->LaunchProjectile(LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
 }
 
 void ATank::AimAt(FVector HitLocation)
