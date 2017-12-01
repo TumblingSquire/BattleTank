@@ -20,6 +20,19 @@ void UTankMovementComponent::IntendTurnRight(float Throw)
 	LeftTrack->SetThrottle(-Throw);
 }
 
+void UTankMovementComponent::RequestDirectMove(const FVector & MoveVelocity, bool bForceMaxSpeed)
+{
+	// No Super call, we are replacing the functionality
+	auto TankName = GetOwner()->GetName();
+	auto TankForwardDirection = GetOwner()->GetActorForwardVector().GetSafeNormal();
+	auto TankIntentionDirection = MoveVelocity.GetSafeNormal();
+
+	// 
+	IntendMoveForward(FVector::DotProduct(TankForwardDirection, TankIntentionDirection));
+	
+	//UE_LOG(LogTemp, Warning, TEXT("%s AI Forward intention: %s "), *TankName, *MoveVelocity.GetSafeNormal().ToString());
+}
+
 void UTankMovementComponent::Initialize(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet)
 {
 	LeftTrack = LeftTrackToSet;
