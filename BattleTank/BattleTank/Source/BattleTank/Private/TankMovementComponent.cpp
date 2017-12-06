@@ -27,10 +27,8 @@ void UTankMovementComponent::RequestDirectMove(const FVector & MoveVelocity, boo
 	auto TankForwardDirection = GetOwner()->GetActorForwardVector().GetSafeNormal();
 	auto TankIntentionDirection = MoveVelocity.GetSafeNormal();
 
-	// 
+	IntendTurnRight(FVector::CrossProduct(TankIntentionDirection,TankForwardDirection ).Z);
 	IntendMoveForward(FVector::DotProduct(TankForwardDirection, TankIntentionDirection));
-	
-	//UE_LOG(LogTemp, Warning, TEXT("%s AI Forward intention: %s "), *TankName, *MoveVelocity.GetSafeNormal().ToString());
 }
 
 void UTankMovementComponent::Initialize(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet)
