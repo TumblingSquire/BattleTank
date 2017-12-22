@@ -27,7 +27,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = Setup)
 		TSubclassOf<AProjectile> ProjectileBluePrint;
 
-	UTankBarrel* Barrel = nullptr;
+	UTankBarrel* Barrel = nullptr; //TODO Remove
 
 	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	float ReloadTime = 3.f;
@@ -55,11 +55,5 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = Action)
 		void Fire();
-
-	UFUNCTION(BlueprintCallable, Category = Setup)
-		void SetBarrelReference(UTankBarrel* BarrelToSet);
-
-	UFUNCTION(BlueprintCallable, Category = Setup)
-		void SetTurretReference(UTankTurret* TurretToSet);
 
 };
