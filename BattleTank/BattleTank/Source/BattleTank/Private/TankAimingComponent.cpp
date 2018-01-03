@@ -46,8 +46,8 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 {
-	if (!Barrel) return;
-	if (!Turret) return;
+	if (!ensure(Barrel)) return;
+	if (!ensure(Turret)) return;
 
 	FVector OutLaunchVelocity;
 	FVector StartLocation = Barrel->GetSocketLocation(FName("Projecttile"));
@@ -77,7 +77,7 @@ void UTankAimingComponent::AimAt(FVector HitLocation, float LaunchSpeed)
 
 void UTankAimingComponent::MoveBarrel(FVector AimDirection)
 {
-	if (!Barrel || !Turret) return;
+	if (!ensure(Barrel && Turret)) return;
 	// find the amount of rotation that the barrel need to move
 	// from current vector to aim direction
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();

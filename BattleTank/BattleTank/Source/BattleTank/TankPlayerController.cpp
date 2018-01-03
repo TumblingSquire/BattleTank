@@ -29,8 +29,8 @@ void ATankPlayerController::BeginPlay()
 
 	auto AimingComponent = GetControlledTank()->FindComponentByClass<UTankAimingComponent>();
 
-	if(AimingComponent) FoundAimingComponent(AimingComponent);
-	else UE_LOG(LogTemp, Warning, TEXT("Player controller cant find aiming component."));
+	if (!ensure(AimingComponent)) return;
+	FoundAimingComponent(AimingComponent);
 }
 
 void ATankPlayerController::Tick(float DeltaTime)
@@ -41,7 +41,7 @@ void ATankPlayerController::Tick(float DeltaTime)
 
 void ATankPlayerController::AimTowardCrosshair()
 {
-	if (!GetControlledTank()) return;
+	if (!(GetControlledTank())) return;
 
 	FVector HitLocation; // OUT parameter
 	// Get Linetrace where it hit the world through the crosshair
