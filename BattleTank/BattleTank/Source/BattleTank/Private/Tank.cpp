@@ -4,7 +4,6 @@
 #include "Public/TankBarrel.h"
 #include "Public/Projectile.h"
 #include "Engine/World.h"
-#include "Public/TankAimingComponent.h"
 
 
 // Sets default values
@@ -32,17 +31,11 @@ void ATank::Fire()
 	}
 }
 
-void ATank::AimAt(FVector HitLocation)
-{
-	if (!ensure(TankAimingComponent)) {return;}
-	TankAimingComponent->AimAt(HitLocation, LaunchSpeed);
-}
 
 // Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
-	TankAimingComponent = FindComponentByClass<UTankAimingComponent>();
 }
 
 // Called every frame
