@@ -3,6 +3,7 @@
 #include "Public/TankAimingComponent.h" 
 #include "Public/TankTurret.h"
 #include "Public/TankBarrel.h"
+#include "Public/Projectile.h"
 #include "GameFramework/Actor.h"
 #include "Engine/World.h"
 #include "Runtime/Engine/Classes/Components/StaticMeshComponent.h"
@@ -25,8 +26,9 @@ void UTankAimingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	// first fire is all after a period of time of reload
+	LastFireTime = FPlatformTime::Seconds();
+
 }
 
 
@@ -41,7 +43,18 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
+	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTime)
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if (IsBarrelMoving())
+	{
+		FiringStatus = EFiringStatus::Aiming;
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Locked;
+	}
 }
 
 void UTankAimingComponent::AimAt(FVector HitLocation)
@@ -65,17 +78,17 @@ void UTankAimingComponent::AimAt(FVector HitLocation)
 
 	if (bFoundAimSolution)
 	{
-		auto AimDirection = OutLaunchVelocity.GetSafeNormal();
-		MoveBarrel(AimDirection);
+		AimDirection = OutLaunchVelocity.GetSafeNormal();
+		MoveBarrel();
 	}
 	else
 	{
 		auto Time = GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f: Aim solution not found."), Time);
+		UE_LOG(LogTemp, Warning, TEXT("%f: Aim solution not found. Might aiming an out-of-reach point."), Time);
 	}
 }
 
-void UTankAimingComponent::MoveBarrel(FVector AimDirection)
+void UTankAimingComponent::MoveBarrel()
 {
 	if (!ensure(Barrel && Turret)) return;
 	// find the amount of rotation that the barrel need to move
@@ -92,7 +105,31 @@ void UTankAimingComponent::MoveBarrel(FVector AimDirection)
 	{
 		Turret->Rotate(-DeltaRotator.Yaw);
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Rotating Turret by: %f"), DeltaRotator.Yaw);
 
 }
 
+
+void UTankAimingComponent::Fire()
+{
+	if (!ensure(Barrel && ProjectileBluePrint)) return;
+	if (FiringStatus != EFiringStatus::Reloading)
+		//Spawn a projectile at the barrel' location
+	{
+		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
+			ProjectileBluePrint,
+			Barrel->GetSocketLocation(FName("Projecttile")),
+			Barrel->GetSocketRotation(FName("Projecttile"))
+			);
+
+		Projectile->LaunchProjectile(LaunchSpeed);
+		LastFireTime = FPlatformTime::Seconds();
+	}
+}
+
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(Barrel)) return false;
+	if (!Barrel->GetForwardVector().Equals(AimDirection)) return true;
+
+	return false;
+}

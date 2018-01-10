@@ -28,6 +28,6 @@ void ATankAIController::Tick(float DeltaTime)
 	auto PlayerTankLocation = PlayerPawn->GetActorLocation();
 	AimingComponent->AimAt(PlayerTankLocation);
 
-	//PlayerPawn->Fire();
+	AimingComponent->Fire();
 
 }

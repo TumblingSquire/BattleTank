@@ -15,13 +15,19 @@ class BATTLETANK_API UTankTrack : public UStaticMeshComponent
 	GENERATED_BODY()
 	
 public:
+	UTankTrack();
+
 	UFUNCTION(BlueprintCallable, Category = Input)
 	void SetThrottle(float Throttle);
-	
+
 	// Force of each trach, in Newton
 	// Assuming tank goes faster here than in real life, being 10m/s², reaching 100meter/second in 10seconds
 	// And tank weights at 40 tons, or 40,000 kilograms 
 	// Force = Mass * Acceleration;
 	UPROPERTY(EditDefaultsOnly)
-		float TrackMaxDrivingForce = 400000.f;
+		float TrackMaxDrivingForce = 40000000.f;
+
+private:
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
 };
