@@ -47,6 +47,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 		void Fire();
 
+	EFiringStatus GetCurrentFiringStatus() const;
+
 private:
 	bool IsBarrelMoving();
 

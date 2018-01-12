@@ -34,13 +34,13 @@ private:
 	bool GetLookVectorHitLocation(FVector & HitLocation, FVector CameraWorldLocation,
 		FVector CameraWorldDirection) const;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "UISetting")
 		float CrossHairXLocation = .5f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "UISetting")
 		float CrossHairYLocation = .3333f;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category = "UISetting")
 	float LineTraceRange = 50000.f;
 
 };
