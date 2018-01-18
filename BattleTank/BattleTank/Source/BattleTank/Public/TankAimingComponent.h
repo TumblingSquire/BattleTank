@@ -36,8 +36,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 		EFiringStatus FiringStatus = EFiringStatus::Reloading;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Firing")
-		int CurrentAmmo = 3;
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+		int32 CurrentAmmo = 30;
 
 public:	
 	UFUNCTION(BlueprintCallable, Category = "Setup")
