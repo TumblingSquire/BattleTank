@@ -43,7 +43,11 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTime)
+	if (CurrentAmmo == 0)
+	{
+		FiringStatus = EFiringStatus::CoolDown;
+	}
+	else if ((FPlatformTime::Seconds() - LastFireTime) < ReloadTime)
 	{
 		FiringStatus = EFiringStatus::Reloading;
 	}
@@ -112,7 +116,8 @@ void UTankAimingComponent::MoveBarrel()
 void UTankAimingComponent::Fire()
 {
 	if (!ensure(Barrel && ProjectileBluePrint)) return;
-	if (FiringStatus != EFiringStatus::Reloading)
+	if (FiringStatus == EFiringStatus::Aiming || 
+		FiringStatus == EFiringStatus::Locked)
 		//Spawn a projectile at the barrel' location
 	{
 		auto Projectile = GetWorld()->SpawnActor<AProjectile>(
@@ -121,6 +126,7 @@ void UTankAimingComponent::Fire()
 			Barrel->GetSocketRotation(FName("Projecttile"))
 			);
 
+		CurrentAmmo = CurrentAmmo - 1;
 		Projectile->LaunchProjectile(LaunchSpeed);
 		LastFireTime = FPlatformTime::Seconds();
 	}
