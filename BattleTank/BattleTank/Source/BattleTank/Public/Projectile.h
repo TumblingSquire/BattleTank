@@ -37,4 +37,11 @@ private:
 
 	UPROPERTY(VisibleAnywhere, Category = "Particle Effect")
 	UParticleSystemComponent * LaunchBlast = nullptr;
+
+	UPROPERTY(VisibleAnywhere, Category = "Particle Effect")
+		UParticleSystemComponent * ImpactBlast = nullptr;
+
+	UFUNCTION(BlueprintCallable, Category = "Collision")
+		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherCOmponent, FVector NormalImpulse, const FHitResult& Hit);
+
 };
