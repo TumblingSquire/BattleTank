@@ -28,5 +28,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetHealthPercent() const;
+private:
 
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const & DamageEvent,
+		class AController * EventInstigator,
+		AActor * DamageCauser
+	) override;
+
+	UPROPERTY(EditDefaultsOnly, Category = "HealthStatus")
+		int32 MaxHealth = 50.f;
+
+	int32 CurrentHealth = 50.f;
 };

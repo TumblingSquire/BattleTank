@@ -31,3 +31,24 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+float ATank::GetHealthPercent() const
+{
+	return (float)CurrentHealth/(float)MaxHealth;
+}
+
+float ATank::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AController * EventInstigator, AActor * DamageCauser)
+{
+	int32 DamagaPoint = FPlatformMath::RoundToInt(DamageAmount);
+	// Ensure damage does not exceed our current health
+	int32 FinalDamageAmount = FMath::Clamp<int32>(DamagaPoint, 0, CurrentHealth);
+
+	CurrentHealth -= FinalDamageAmount;
+
+	if (CurrentHealth <= 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("(HP %i/%i) %s takes %i amount of damage (%i when full)"), CurrentHealth, MaxHealth, *GetName(), FinalDamageAmount, DamagaPoint);
+
+	}
+	return FinalDamageAmount;
+}
+

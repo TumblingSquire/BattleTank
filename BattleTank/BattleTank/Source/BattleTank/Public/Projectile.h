@@ -33,8 +33,13 @@ public:
 private:
 	UProjectileMovementComponent * ProjectileMovementComponent = nullptr;
 
+	FTimerHandle SampleTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Damage")
+		float BaseDamage = 20.f;
+
 	UPROPERTY(EditDefaultsOnly, Category = "Destroy")
-	float DestroyDelay = 5.f;
+		float DestroyDelay = 5.f;
 
 	UPROPERTY(VisibleAnywhere, Category = "Particle Effect")
 		UStaticMeshComponent * CollisionMesh = nullptr;
@@ -52,8 +57,6 @@ private:
 	UFUNCTION(BlueprintCallable, Category = "Collision")
 		void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherCOmponent, FVector NormalImpulse, const FHitResult& Hit);
 
-	FTimerHandle SampleTimerHandle;
-
 	UFUNCTION()
-	void OnDestroy();
+		void OnDestroy();
 };
