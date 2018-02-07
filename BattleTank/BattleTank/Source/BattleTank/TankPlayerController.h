@@ -25,6 +25,9 @@ private:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void SetPawn(APawn * InPawn) override;
+
 	// start moving barrel to prepare to fire toward the crosshair
 	void AimTowardCrosshair();
 
@@ -43,4 +46,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "UISetting")
 	float LineTraceRange = 50000.f;
 
+	UFUNCTION()
+		void OnTankDeath();
 };

@@ -15,6 +15,7 @@ ATank::ATank()
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
+	CurrentHealth = MaxHealth;
 }
 
 // Called every frame
@@ -48,6 +49,7 @@ float ATank::TakeDamage(float DamageAmount, FDamageEvent const & DamageEvent, AC
 	{
 		UE_LOG(LogTemp, Warning, TEXT("(HP %i/%i) %s takes %i amount of damage (%i when full)"), CurrentHealth, MaxHealth, *GetName(), FinalDamageAmount, DamagaPoint);
 
+		OnTankDeath.Broadcast();
 	}
 	return FinalDamageAmount;
 }

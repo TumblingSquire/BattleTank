@@ -3,6 +3,8 @@
 #include "TankPlayerController.h"
 #include "TankAimingComponent.h"
 #include "Engine/World.h"
+#include "Tank.h" // For implementation of tank death
+#include "Runtime/Engine/Classes/GameFramework/PlayerController.h"
 #include "Public/DrawDebugHelpers.h"
 
 
@@ -32,8 +34,23 @@ void ATankPlayerController::Tick(float DeltaTime)
 	AimTowardCrosshair();
 }
 
+void ATankPlayerController::SetPawn(APawn * InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	if (InPawn)
+	{
+		auto PossessedTank = Cast<ATank>(InPawn);
+		if (!ensure(PossessedTank)) return;
+
+		// subscibe to death event
+		PossessedTank->OnTankDeath.AddUniqueDynamic(this, &ATankPlayerController::OnTankDeath);
+	}
+}
+
 void ATankPlayerController::AimTowardCrosshair()
 {
+	if (!GetPawn()) { return; }
 	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimingComponent)) return;
 
@@ -76,7 +93,7 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector & HitLocation,
 		OUT HitResult,
 		CameraWorldLocation,
 		CameraWorldLocation + CameraWorldDirection*LineTraceRange,
-		ECollisionChannel::ECC_Visibility))
+		ECollisionChannel::ECC_Camera))
 	{
 		HitLocation = HitResult.Location;
 		return true;
@@ -86,4 +103,9 @@ bool ATankPlayerController::GetLookVectorHitLocation(FVector & HitLocation,
 		return false;
 	}
 	
+}
+
+void ATankPlayerController::OnTankDeath()
+{
+	StartSpectatingOnly();
 }
